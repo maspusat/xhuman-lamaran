@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Surat Lamaran - Generator (Fixed Layout)</title>
+
+<!-- Google Font Arimo -->
+<link href="https://fonts.googleapis.com/css2?family=Arimo:wght@400;700&display=swap" rel="stylesheet">
+
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<!-- html2pdf -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+<style>
+    :root{
+        --paper-width: 794px;
+        --paper-height: 1123px;
+    }
+
+    body{
+        background: linear-gradient(135deg,#080808,#151515);
+        font-family: "Arimo", Arial, sans-serif;
+        color: #fff;
+        margin: 30px;
+    }
+
+    .container-wrap{
+        max-width: 980px;
+        margin: 0 auto 60px;
+    }
+
+    h1.app-title{
+        color: #f5d76e;
+        text-align: center;
+        margin-bottom: 18px;
+        font-weight:700;
+    }
+
+    .controls {
+        background: linear-gradient(145deg,#111,#222);
+        border: 2px solid #e6b93c;
+        padding: 18px;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(214,175,55,0.18);
+    }
+
+    label {
+        color: #f0e8d0;
+        font-weight: 600;
+    }
+
+    input.form-control {
+        background: #0f0f0f;
+        color: #f7f2df;
+        border: 1px solid #c9a93a;
+    }
+
+    .btn-gold {
+        background: linear-gradient(90deg,#f4d03f,#f5b041);
+        color: #000;
+        font-weight: 700;
+        border:none;
+        box-shadow: 0 8px 20px rgba(245,215,110,0.18);
+    }
+
+    #paper {
+        width: var(--paper-width);
+        height: var(--paper-height);
+        background: #fff;
+        color: #000;
+        padding: 56px 72px;
+        border-radius: 4px;
+        box-shadow: 0 12px 40px rgba(0,0,0,0.6);
+        box-sizing: border-box;
+        position: relative;
+
+        /* FIX: agar PDF tidak jadi 2 halaman */
+        overflow: hidden;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+    }
+
+    .date-line {
+        text-align: right;
+        font-size: 12pt;
+        margin-bottom: 12px;
+    }
+
+    .kepada {
+        margin-top: 5px;
+        font-size: 12pt;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .intro {
+        font-size: 12pt;
+        line-height: 1.6;
+        text-align: justify;
+        margin-bottom: 18px;
+    }
+
+    .biodata {
+        margin-top: 12px;
+        font-size: 12pt;
+        line-height: 1.6;
+        margin-bottom: 20px;
+    }
+
+    .label {
+        width: 190px;
+        display:inline-block;
+    }
+
+    .closing {
+        font-size: 12pt;
+        line-height: 1.6;
+        margin-top: 18px;
+    }
+
+    .signature {
+        position: absolute;
+        right: 72px;
+        bottom: 78px;
+        text-align: center;
+        font-size: 12pt;
+    }
+
+    .signature .name {
+        margin-top: 52px;
+        font-weight:700;
+    }
+</style>
+</head>
+<body>
+
+<div class="container-wrap">
+    <h1 class="app-title">Generator Surat Lamaran — Fixed Layout (Arimo)</h1>
+
+    <div class="controls mb-3">
+        <div class="row g-2">
+            <div class="col-md-5">
+                <label>Tanggal</label>
+                <input id="tanggalInput" class="form-control" placeholder="cth: 17 November 2025" value="">
+            </div>
+            <div class="col-md-5">
+                <label>Nama PT</label>
+                <input id="ptInput" class="form-control" value="">
+            </div>
+            <div class="col-md-2">
+                <label>Posisi</label>
+                <input id="posisiInput" class="form-control" value="">
+            </div>
+        </div>
+
+        <div class="row mt-3">
+            <div class="col-md-6">
+                <button id="btnPreview" class="btn btn-gold w-100">PREVIEW</button>
+            </div>
+            <div class="col-md-6">
+                <button id="btnDownload" class="btn btn-gold w-100" disabled>DOWNLOAD PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="preview-area">
+        <div id="paper">
+
+            <!-- Tanggal otomatis: Surabaya, + tanggalInput -->
+            <div class="date-line" id="paper_date"></div>
+
+            <br><br>
+
+            <div class="kepada">
+                Kepada Yth.<br>
+                Bapak/Ibu HRD<br>
+                Yth. <span id="paper_pt" style="font-weight:700;"></span>
+            </div>
+
+            <div class="intro">
+                Sesuai informasi yang saya peroleh bahwa terdapat lowongan pekerjaan pada perusahaan Bapak/Ibu.
+                Melalui surat lamaran ini, saya mengajukan diri melamar pekerjaan sebagai
+                <span id="paper_posisi" style="font-weight:700;"></span>.
+                Saya yang bertandatangan di bawah ini:
+            </div>
+
+            <div class="biodata">
+                <div><span class="label">Nama</span>: Atalarik Satria Dinata</div>
+                <div><span class="label">Tempat, Tanggal Lahir</span>: Surabaya, 5 Juni 2003</div>
+                <div><span class="label">Pendidikan</span>: D3 Sistem Informasi - Universitas Dinamika Surabaya</div>
+                <div><span class="label">Status Nikah</span>: Belum menikah</div>
+                <div><span class="label">Alamat</span>: Sidotopo Sekolahan 1/35 Surabaya</div>
+                <div><span class="label">No. Telp</span>: +62 895340079439</div>
+            </div>
+
+            <div class="closing">
+                Selain itu, saya memiliki pengalaman magang sebagai IT Support di PT. PAL Indonesia
+                dan ITS, dengan tugas instalasi, konfigurasi, troubleshooting, serta pemeliharaan perangkat
+                dan jaringan. Saya juga mengikuti sertifikasi PIKTI ITS Tekno Sains Academy dan 
+                LSP Jaringan & Infrastruktur (Network Administrator Muda) untuk memperkuat kompetensi di bidang IT.
+                <br><br>
+                Sebagai pertimbangan Bapak/Ibu, saya melampirkan kelengkapan data diri dan Sertifikat Keterampilan.
+                <br><br>
+                Demikian surat lamaran ini saya buat dengan sebenar-benarnya.
+                Atas perhatian Bapak/Ibu saya ucapkan terima kasih.
+            </div>
+
+            <div class="signature">
+                Hormat saya,
+                <div class="name">Atalarik Satria D</div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+// UPDATE PREVIEW
+btnPreview.onclick = () => {
+    const t = tanggalInput.value.trim();
+
+    // otomatis tambahkan "Surabaya, "
+    paper_date.innerText = t ? `Surabaya, ${t}` : "";
+
+    paper_pt.innerText = ptInput.value;
+    paper_posisi.innerText = posisiInput.value;
+
+    btnDownload.disabled = false;
+};
+
+// DOWNLOAD PDF — FIX 1 HALAMAN
+btnDownload.onclick = () => {
+    const posisi = posisiInput.value;
+    const pt = ptInput.value;
+    const filename = `${posisi}_AtalarikSatriaD_${pt}`.replace(/\s+/g,'_') + ".pdf";
+
+    const element = document.getElementById("paper");
+
+    const opt = {
+        margin: 0,
+        filename: filename,
+        html2canvas: { scale: 2, scrollY: 0 },
+        jsPDF: { unit: "pt", format: "a4", orientation: "portrait" },
+        pagebreak: { mode: ["avoid-all"] }
+    };
+
+    // Buat PDF manual
+    html2pdf().set(opt).from(element).toPdf().get('pdf').then(function (pdf) {
+
+        // 🔥 FIX UTAMA — HAPUS HALAMAN KE-2 JIKA ADA
+        const totalPages = pdf.internal.getNumberOfPages();
+        if (totalPages > 1) {
+            pdf.deletePage(2);
+        }
+
+        // Simpan PDF
+        pdf.save(filename);
+    });
+};
+</script>
+
+</body>
+</html>
